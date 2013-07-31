@@ -83,7 +83,7 @@ public class Person {
 		// TODO Auto-generated method stub
 		return this.id +","+this.looks+","+this.character+","
 				+this.wealth+","+this.health+","+this.expectLooks+","
-				+this.expectCharacter+","+this.expectWealth+this.expectHealth+",";
+				+this.expectCharacter+","+this.expectWealth+","+this.expectHealth;
 	}
 	
 	

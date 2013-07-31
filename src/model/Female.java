@@ -27,6 +27,11 @@ public class Female extends Person
     	this.voteBox++;
     }
 
+    public void setVoteBox(int voteBox)
+    {
+        this.voteBox = voteBox;
+    }
+
     public int getVoteBox() {
 		return voteBox;
 	}

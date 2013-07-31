@@ -119,7 +119,7 @@ public class Interface extends JFrame implements ActionListener{
 			else if(e.getActionCommand()=="Get the result using random data"){
 				String attribution = inputTextArear.getText();
 				if(attribution!=null && !attribution.trim().equals("") && verifyInput(attribution)){
-					MakePair.usingRandomData(attribution);
+					MakePair.usingRandomData(MaleNum, FemaleNum);
 					Person matcher = MakePair.getMatcher();
 					if(matcher!=null){
 						rlt.setText("<html>[Format:]id,looks,character,wealth,exceptLooks," +
@@ -143,7 +143,7 @@ public class Interface extends JFrame implements ActionListener{
 				if(attribution!=null && !attribution.trim().equals("") && attribution.matches("[0-9]*")){
 					lineNumber = Integer.parseInt(attribution.trim());
 					if(lineNumber<=100 && lineNumber>=1){
-						MakePair.usingFileData(lineNumber);
+						MakePair.usingFileData(MaleNum, FemaleNum);
 						Person matcher = MakePair.getMatcher();
 						if(matcher!=null){
 							rlt.setText("<html>[Format:]id,looks,character,wealth,exceptLooks," +

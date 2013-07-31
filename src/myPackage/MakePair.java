@@ -19,7 +19,7 @@ import model.Person;
 public class MakePair {
 	private static final String MALE_FILE_PATH = "attachments\\e_ztework_mywork_male.txt";
 	private static final String FEMALE_FILE_PATH = "attachments\\e_ztework_mywork_female.txt";
-	private static final int MAX_ATTRIBUTION_VALUE = 97;
+	private static final int MAX_ATTRIBUTION_VALUE = 100;
 	private static final int MAX_EXPECTAION_VALUE = 10000;
 	private static ArrayList<Male> male = new ArrayList<Male>();
 	private static ArrayList<Female> female = new ArrayList<Female>();
@@ -53,14 +53,22 @@ public class MakePair {
 	 * Show all the result of the matching
 	 * 
 	 */
-	public static void showAllResult(){
+	public static ArrayList<Person[]> showAllResult(){
 		Person[] onePair;
-		for(int i=0;i<100;i++){
+		ArrayList<Person[]> result = new ArrayList<Person[]>();
+		while(male.size()>0 && female.size()>0){
 			onePair = getOnePair();
-			System.out.println(onePair[0]+"----"+onePair[1]);
-			male.remove(onePair[0]);
-			female.remove(onePair[1]);
+			if(onePair!=null){
+    			System.out.println(onePair[0]+"----"+onePair[1]);
+    			result.add(onePair);
+    			male.remove(onePair[0]);
+    			female.remove(onePair[1]);
+			}
+			else
+			    break;
 		}
+		
+		return result;
 	}
 	
 	
@@ -174,9 +182,10 @@ public class MakePair {
 	 * @return the score of targetPerson to sourcePerson
 	 */
 	private static int calculateScore(Person targetPerson,Person sourcePerson){
-		return ((sourcePerson.getExpectLooks()*targetPerson.getLooks() 
+		return (sourcePerson.getExpectLooks()*targetPerson.getLooks() 
 				+ sourcePerson.getExpectCharacter()*targetPerson.getCharacter()
-				+ sourcePerson.getExpectWealth()*targetPerson.getWealth()));
+				+ sourcePerson.getExpectWealth()*targetPerson.getWealth()
+				+ sourcePerson.getExpectHealth()*targetPerson.getHealth());
 	}
 	
 	/**
@@ -207,43 +216,76 @@ public class MakePair {
 	
 	/**
 	 * Get one matching pair according to the specific rule
-	 * @return Person[], index 0 is male,index 1 is female
+	 * @return Person[]
+	 *  index 0 is male,index 1 is female.
+	 *  if return null that means no pair is available
 	 */
 	public static Person[] getOnePair(){
 		//males vote one who has the highest score in exists females
 		//meanwhile female can record the male who is the matcher among voters
 		int score;
-		int size = female.size();
 		Female highScoreFemale;
+		ArrayList<Female> NoSelectFemale = new ArrayList<Female>();
 		initializeVote();
 		for(Male voter:male){
 			if(voter.getTarget()== null || (!female.contains(voter.getTarget()))){
-				setHighestScoreFemale(voter);
+				setHighestScoreFemale(voter,female);
+				
+				highScoreFemale = voter.getTarget();
+	            score = calculateScore(voter, highScoreFemale);
+	            if(score>=highScoreFemale.getExpectScore()*1.5){
+	                if(highScoreFemale.getTarget()==null || voter.getId()>highScoreFemale.getTarget().getId()){
+    	                highScoreFemale.setTarget(voter);
+    	                highScoreFemale.setTargetScore(score);
+	                }
+	            }
+	            else if(score<highScoreFemale.getExpectScore()){
+	                continue;
+	            }
+	            else{//ExpectScore<=score<ExpectScore*1.5
+	                if(score>highScoreFemale.getTargetScore()){
+	                    highScoreFemale.setTarget(voter);
+	                    highScoreFemale.setTargetScore(score);
+	                }
+	                else if(score==highScoreFemale.getTargetScore()){
+	                    if(comparePriority(voter, highScoreFemale.getTarget())>0){
+	                        highScoreFemale.setTarget(voter);
+	                        highScoreFemale.setTargetScore(score);
+	                    }
+	                }
+	            }
 			}
 			
-			highScoreFemale = voter.getTarget();
-			highScoreFemale.addVote();
-			score = calculateScore(voter, highScoreFemale);
-			if(score>=highScoreFemale.getExpectScore()*1.5){
-				highScoreFemale.setTarget(voter);
-				highScoreFemale.setTargetScore(score);
-			}
-			else if(score<highScoreFemale.getExpectScore()){
-				continue;
-			}
-			else{//ExpectScore<=score<ExpectScore*1.5
-				if(score>highScoreFemale.getTargetScore()){
-					highScoreFemale.setTarget(voter);
-					highScoreFemale.setTargetScore(score);
-				}
-			}
+
+			voter.getTarget().addVote();
+			
 		}
 		
-		//sort the female by the voteBox
 		
-		
-		//return the pair
-//		return new Person[]{female.get(index).getTarget(),female.get(index)};
+		while(female.size()>0){
+		    //find the most/next popular female 
+    		int index = 0;
+    		for(int i=1;i<female.size();i++){
+    		    if(compareVote(i,index,female)>0){
+    		        index = i;
+    		    }
+    		}
+    		
+    		if(female.get(index).getVoteBox()==0){//the next popular one has no vote.
+    		    return null;
+    		}
+    		else if(female.get(index).getTarget()!=null){
+    		    female.addAll(NoSelectFemale);
+    		    return new Person[]{female.get(index).getTarget(),female.get(index)};
+    		}
+    		else{
+    		    NoSelectFemale.add(female.get(index));
+                female.remove(index);
+    		}
+		}
+		female.addAll(NoSelectFemale);
+		return null;
+
 	}
 	
 	/**
@@ -255,7 +297,7 @@ public class MakePair {
 	 * @param voteBox
 	 * @return
 	 */
-	public static int compareVote(int index1,int index2){
+	public static int compareVote(int index1,int index2,ArrayList<Female> female){
 		Female f1 = female.get(index1);
 		Female f2 = female.get(index2);
 		if(f1.getVoteBox()>f2.getVoteBox()){
@@ -285,7 +327,7 @@ public class MakePair {
 	 * in remaining females 
 	 * @param man
 	 */
-	public static void setHighestScoreFemale(Male man){
+	public static void setHighestScoreFemale(Male man,ArrayList<Female> female){
 		int score;
 		man.setTarget(null);
 		man.setTargetScore(0);
@@ -294,7 +336,13 @@ public class MakePair {
 			if(score>man.getTargetScore()){
 				man.setTargetScore(score);
 				man.setTarget(female.get(i));
-			}			
+			}
+			else if(man.getTarget()!=null && score==man.getTargetScore()){
+			    if(comparePriority(female.get(i), man.getTarget())>0){
+			        man.setTargetScore(score);
+	                man.setTarget(female.get(i));
+			    }
+			}
 		}
 	}
 	
@@ -336,7 +384,7 @@ public class MakePair {
 	}
 	
 	/**
-     * Generate Num with random female whose value between [1,97]
+     * Generate Num with random female whose expectation between [1,97]
      * @param Num the number of person.
      * @return ArrayList<Female>
      */
@@ -380,6 +428,16 @@ public class MakePair {
 	public static ArrayList<Female> getFemale() {
 		return female;
 	}
+
+    public static void setMale(ArrayList<Male> male)
+    {
+        MakePair.male = male;
+    }
+
+    public static void setFemale(ArrayList<Female> female)
+    {
+        MakePair.female = female;
+    }
 	
 	
 }
