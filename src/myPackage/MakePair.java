@@ -24,22 +24,24 @@ public class MakePair {
 	private static ArrayList<Male> male = new ArrayList<Male>();
 	private static ArrayList<Female> female = new ArrayList<Female>();
 	private static int maleNum,femaleNum;
-	static int[] voteBox = new int[101]; //to record the number of voter for each female
 	
 	/**
 	 * Set data using specific file data
-	 * the player's attribution is also read from lineNumber line of file 
-	 * @param lineNumber
+	 * the number of male is MaleNum,the number of female is FemaleNum 
+	 * @param 
 	 */
-	public static void usingFileData() {
+	public static void usingFileData(int MaleNum,int FemaleNum) {
+		setMaleNum(MaleNum);
+        setFemaleNum(FemaleNum);
 		readFileToMale(MALE_FILE_PATH);
 		readFileToFemale(FEMALE_FILE_PATH);
 	}
 	
 	/**
 	 * Set data using random data
-	 * the player's attribution is gained by input
-	 * @param lineNumber
+	 * the number of male is MaleNum,the number of female is FemaleNum 
+	 * @param MaleNum
+	 * @param FemaleNum
 	 */
 	public static void usingRandomData(int MaleNum,int FemaleNum){
 	    setMaleNum(MaleNum);
@@ -178,40 +180,70 @@ public class MakePair {
 	}
 	
 	/**
+	 * Compare the priority of two persons when they have the same score
+	 * the rule is that the one who has higher summary of attributions and smaller id 
+	 * is prior
+	 * @param p1
+	 * @param p2
+	 * @return 1,-1
+	 *  1 means p1 is prior to p2
+	 *  -1 means p2 is prior to p1
+	 */
+	private static int comparePriority(Person p1,Person p2){
+		if(p1.getLooks()+p1.getCharacter()+p1.getWealth()+p1.getHealth()>
+		p2.getLooks()+p2.getCharacter()+p2.getWealth()+p2.getHealth()){
+			return 1;
+		}
+		else if(p1.getLooks()+p1.getCharacter()+p1.getWealth()+p1.getHealth()<
+		p2.getLooks()+p2.getCharacter()+p2.getWealth()+p2.getHealth()){
+			return -1;
+		}
+		else if(p1.getId()<p2.getId()){
+			return 1;
+		}
+		else
+			return -1;
+	}
+	
+	/**
 	 * Get one matching pair according to the specific rule
 	 * @return Person[], index 0 is male,index 1 is female
 	 */
 	public static Person[] getOnePair(){
 		//males vote one who has the highest score in exists females
-		//meanwhile female can record the male who has the highest score among voters
-		int voteeIndex,score;
+		//meanwhile female can record the male who is the matcher among voters
+		int score;
 		int size = female.size();
-		initializeVote(voteBox,0,size);
-		for(Person voter:male){
+		Female highScoreFemale;
+		initializeVote();
+		for(Male voter:male){
 			if(voter.getTarget()== null || (!female.contains(voter.getTarget()))){
 				setHighestScoreFemale(voter);
 			}
 			
-			voteeIndex = female.indexOf(voter.getTarget());
-			
-			voteBox[voteeIndex]++;
-			score = calculateScore(voter, female.get(voteeIndex));
-			if(score>female.get(voteeIndex).getTargetScore()){
-				female.get(voteeIndex).setTarget(voter);
-				female.get(voteeIndex).setTargetScore(score);
+			highScoreFemale = voter.getTarget();
+			highScoreFemale.addVote();
+			score = calculateScore(voter, highScoreFemale);
+			if(score>=highScoreFemale.getExpectScore()*1.5){
+				highScoreFemale.setTarget(voter);
+				highScoreFemale.setTargetScore(score);
+			}
+			else if(score<highScoreFemale.getExpectScore()){
+				continue;
+			}
+			else{//ExpectScore<=score<ExpectScore*1.5
+				if(score>highScoreFemale.getTargetScore()){
+					highScoreFemale.setTarget(voter);
+					highScoreFemale.setTargetScore(score);
+				}
 			}
 		}
 		
-		//find the female who is the most popular
-		int index = 0;
-		for(int i=1;i<size;i++){
-			if(compareVote(i,index,voteBox,female)>0){
-				index = i;
-			}
-		}
+		//sort the female by the voteBox
+		
 		
 		//return the pair
-		return new Person[]{female.get(index).getTarget(),female.get(index)};
+//		return new Person[]{female.get(index).getTarget(),female.get(index)};
 	}
 	
 	/**
@@ -223,13 +255,13 @@ public class MakePair {
 	 * @param voteBox
 	 * @return
 	 */
-	public static int compareVote(int index1,int index2,int[] voteBox,ArrayList<Person> female){
-		Person f1 = female.get(index1);
-		Person f2 = female.get(index2);
-		if(voteBox[index1]>voteBox[index2]){
+	public static int compareVote(int index1,int index2){
+		Female f1 = female.get(index1);
+		Female f2 = female.get(index2);
+		if(f1.getVoteBox()>f2.getVoteBox()){
 			return 1;
 		}
-		else if(voteBox[index1]<voteBox[index2]){
+		else if(f1.getVoteBox()<f2.getVoteBox()){
 			return -1;
 		}
 		else if(f1.getLooks()+f1.getCharacter()+f1.getWealth()
@@ -253,7 +285,7 @@ public class MakePair {
 	 * in remaining females 
 	 * @param man
 	 */
-	public static void setHighestScoreFemale(Person man){
+	public static void setHighestScoreFemale(Male man){
 		int score;
 		man.setTarget(null);
 		man.setTargetScore(0);
@@ -267,14 +299,11 @@ public class MakePair {
 	}
 	
 	/**
-	 * Use  value to initialize array a whose length is size 
-	 * @param a
-	 * @param value
-	 * @param size
+	 * Reset all the VoteBox of each female
 	 */
-	private static void initializeVote(int[] a,int value,int size){
-		for(int i=0;i<size;i++){
-			a[i] = value;
+	private static void initializeVote(){
+		for(Female f:female){
+			f.resetVoteBox();
 		}
 	}
 	
@@ -327,7 +356,7 @@ public class MakePair {
     }
 	
 	/**
-	 * Clear all the data
+	 * Clear male and female
 	 */
 	public static void clearData(){
 		female.clear();
@@ -343,6 +372,14 @@ public class MakePair {
     {
         MakePair.femaleNum = femaleNum;
     }
+
+	public static ArrayList<Male> getMale() {
+		return male;
+	}
+
+	public static ArrayList<Female> getFemale() {
+		return female;
+	}
 	
 	
 }

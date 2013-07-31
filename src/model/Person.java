@@ -16,8 +16,6 @@ public class Person {
 	private int expectCharacter;
 	private int expectWealth;
 	private int expectHealth;
-	private Person target;
-	private int targetScore;
 	
 	/**
 	 * Constructor
@@ -40,8 +38,6 @@ public class Person {
 		this.expectLooks = expectLooks;
 		this.expectCharacter = expectCharacter;
 		this.expectHealth = expectHealth;
-		this.target = null;
-		this.targetScore = 0;
 	}
 
 	public int getId() {
@@ -81,22 +77,6 @@ public class Person {
     {
         return expectHealth;
     }
-
-    public Person getTarget() {
-		return target;
-	}
-
-	public void setTarget(Person target) {
-		this.target = target;
-	}
-
-	public int getTargetScore() {
-		return targetScore;
-	}
-
-	public void setTargetScore(int targetScore) {
-		this.targetScore = targetScore;
-	}
 
 	@Override
 	public String toString() {
