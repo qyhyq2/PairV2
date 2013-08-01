@@ -1,15 +1,10 @@
 package myPackage;
 
 import static org.junit.Assert.assertTrue;
-
 import java.util.ArrayList;
-
 import model.Female;
 import model.Male;
-import model.Person;
-
 import org.junit.After;
-import org.junit.Before;
 import org.junit.Test;
 
 /**
@@ -70,34 +65,94 @@ public class MakePairTest {
 	 *  the method return Person[], index 0 is male,index 1 is female
 	 */
 	@Test
-	public void testGetOnePair(){
-	    //m choose f0 but m doesn't reach the low expectation of f0,so return null
+	public void testGetOnePair1(){
+	    //m chooses f0 but m doesn't reach the low expectation of f0,so return null
 	    Female f0 = new Female(0,97,97,97,97,5,20,70,5,3000);
         Female f1 = new Female(1,50,50,30,30,5,20,70,5,1000);
-        Male m = new Male(0,20,20,20,20,20,20,30,30);
+        Male m0 = new Male(0,20,20,20,20,20,20,30,30);
         ArrayList<Female> female = new ArrayList<Female>();
         ArrayList<Male> male = new ArrayList<Male>();
         female.add(f0);
         female.add(f1);
-        male.add(m);
+        male.add(m0);
         MakePair.setFemale(female);
         MakePair.setMale(male);
         assertTrue(MakePair.getOnePair()==null);
-        
-        //m2 choose f2 and m2 does reach the low expectation of f2,so return the matcher f2---m2
+	}
+      
+	/**
+	 * Test the method getOnePair():
+	 *  Get one matching pair according to the specific rule
+	 *  the method return Person[], index 0 is male,index 1 is female
+	 */
+	@Test
+	public void testGetOnePair2(){
+        //m1 chooses f2 and m1 does reach the low expectation of f2,so return the matcher m1---f2
         Female f2 = new Female(2,97,97,97,97,5,20,70,5,2000);
         Female f3 = new Female(3,50,50,30,30,5,20,70,5,1000);
-        Male m2 = new Male(1,20,20,20,20,20,20,30,30);
-        female.clear();
-        male.clear();
+        Male m1 = new Male(1,20,20,20,20,20,20,30,30);
+        ArrayList<Female> female = new ArrayList<Female>();
+        ArrayList<Male> male = new ArrayList<Male>();
         female.add(f2);
         female.add(f3);
-        male.add(m2);
+        male.add(m1);
         MakePair.setFemale(female);
         MakePair.setMale(male);
         assertTrue(MakePair.getOnePair()[0].getId()==1);
         assertTrue(MakePair.getOnePair()[1].getId()==2);
-		
+	}
+	
+	/**
+	 * Test the method getOnePair():
+	 *  Get one matching pair according to the specific rule
+	 *  the method return Person[], index 0 is male,index 1 is female
+	 */
+	@Test
+	public void testGetOnePair3(){
+        //m2,m3 choose f4 but do not reach the low expectation of f2
+		//m4 chooses f5 but do not reach the low expectation of f5,so return null
+        Female f4 = new Female(4,90,90,90,10,5,20,70,5,3000);
+        Female f5 = new Female(5,30,30,30,90,5,20,70,5,3000);
+        Male m2 = new Male(2,20,20,20,20,30,30,30,10);
+        Male m3 = new Male(3,20,20,20,20,30,30,30,10);
+        Male m4 = new Male(4,20,20,20,20,1,1,1,97);
+        ArrayList<Female> female = new ArrayList<Female>();
+        ArrayList<Male> male = new ArrayList<Male>();
+        female.add(f4);
+        female.add(f5);
+        male.add(m2);
+        male.add(m3);
+        male.add(m4);
+        MakePair.setFemale(female);
+        MakePair.setMale(male);
+        assertTrue(MakePair.getOnePair()==null);
+	}
+	
+	/**
+	 * Test the method getOnePair():
+	 *  Get one matching pair according to the specific rule
+	 *  the method return Person[], index 0 is male,index 1 is female
+	 */
+	@Test
+	public void testGetOnePair4(){
+        //m5,m6 choose f6 but do not reach the low expectation of f6
+		//m7 chooses f7 and m7 can reach the low expectation of f7,so return m7---f7
+        Female f6 = new Female(6,90,90,90,10,5,20,70,5,3000);
+        Female f7 = new Female(7,30,30,30,90,5,20,70,5,2000);
+        Male m5 = new Male(5,20,20,20,20,30,30,30,10);
+        Male m6 = new Male(6,20,20,20,20,30,30,30,10);
+        Male m7 = new Male(7,20,20,20,20,1,1,1,97);
+        ArrayList<Female> female = new ArrayList<Female>();
+        ArrayList<Male> male = new ArrayList<Male>();
+        female.add(f6);
+        female.add(f7);
+        male.add(m5);
+        male.add(m6);
+        male.add(m7);
+        MakePair.setFemale(female);
+        MakePair.setMale(male);
+        assertTrue(MakePair.getOnePair()[0].getId()==7);
+        assertTrue(MakePair.getOnePair()[1].getId()==7);
 	}
 	
 	/**
@@ -112,7 +167,7 @@ public class MakePairTest {
 		Female f1 = new Female(2,12,12,12,12,10,10,70,10,1000);
 		Female f2 = new Female(3,97,90,90,90,10,10,70,10,1000);
 		Female f3 = new Female(4,97,97,97,97,10,10,70,10,1000);
-		ArrayList<Female> female = new ArrayList<Female>();
+		ArrayList<Female> female = new ArrayList<Female>(); 
 		female.add(f0);
 		female.add(f1);
 		female.add(f2);
@@ -131,6 +186,7 @@ public class MakePairTest {
 	 */
 	@Test
 	public void testShowAllResult(){
+		MakePair.usingFileData(MaleNum,FemaleNum);
 	    MakePair.showAllResult();
 	}
 
