@@ -2,34 +2,40 @@ package myPackage;
 
 import java.awt.Button;
 import java.awt.CardLayout;
+import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.ArrayList;
 
+import javax.swing.DefaultListModel;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JList;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 
 import model.Person;
 
 public class Interface extends JFrame implements ActionListener{
-	 
-		private JPanel getDataWayPane,randomPanel,filePanel,inputPanelr,inputPanelf,cards;
+        private static final int MaleNum=150,FemaleNum=100;
+        private ArrayList<Person[]> result = new ArrayList<Person[]>();
+		private JPanel getDataWayPane,randomPanel,filePanel,inputPanelr,cards;
 		private Button randomButton,fileButton,randomGetRltButton,fileGetRltButton;
-		private JTextArea inputTextArear,inputTextAreaf;
-		private JLabel inputLabelr,inputLabelf;
-		private JLabel rlt;
+		private JTextArea inputTextAreaM,inputTextAreaF;
+		private JLabel inputLabelM,inputLabelF;
+		private JList rlt;
 		private CardLayout cl;
 		
 		public Interface()
 		{
-			setSize(510,230);
+			setSize(460,333);
 			setLocation(400, 300);
 			setTitle("Automated Matching");
 			
-			//getDataWayPane: choose the way to get data
+			//getDataWayPanel: choose the way to get data
 			randomButton = new Button("Using random data");
 			randomButton.addActionListener(this);
 			
@@ -40,44 +46,34 @@ public class Interface extends JFrame implements ActionListener{
 			getDataWayPane.setLayout(new FlowLayout());
 			getDataWayPane.add(randomButton);
 			getDataWayPane.add(fileButton);
-			//getDataWayPane
+			//getDataWayPanel
 			
 			//filePanel:using data from file
-		
-				//inputPanelf:to get the player number
-				inputTextAreaf = new JTextArea();
-				
-				inputLabelf = new JLabel("<html>Please enter the player number in the file play.txt:" +
-						"(the number is from 1 to 100)</html>");
-				
-				inputPanelf = new JPanel();
-				inputPanelf.setLayout(new GridLayout(2,1));
-				inputPanelf.add(inputLabelf);
-				inputPanelf.add(inputTextAreaf);
-				//inputPanel
-			
-			
 			fileGetRltButton = new Button("Get the result using data from file");
 			fileGetRltButton.addActionListener(this);
 			
 			filePanel = new JPanel();
 			filePanel.setLayout(new FlowLayout());
-			filePanel.add(inputPanelf);
 			filePanel.add(new JPanel().add(fileGetRltButton));
 			//filePanel
 			
 			//randomPanel:using random data
 			
 				//inputPanelr:to get the player data
-				inputTextArear = new JTextArea();
-				
-				inputLabelr = new JLabel("<html>Please enter the player data <br>" +
-						"([Format:]gender,looks,character,wealth,exceptLooks,expectCharacter,expectWealth)</html>");
+				inputTextAreaM = new JTextArea();
+				inputTextAreaF = new JTextArea();
+				inputLabelM = new JLabel("Please enter the number of Male");
+				inputLabelF = new JLabel("Please enter the number of Female");
 				
 				inputPanelr = new JPanel();
-				inputPanelr.setLayout(new GridLayout(2,1));
-				inputPanelr.add(inputLabelr);
-				inputPanelr.add(inputTextArear);
+				GridLayout gl = new GridLayout(2,2);
+				gl.setHgap(20);
+				gl.setVgap(10);
+				inputPanelr.setLayout(gl);
+				inputPanelr.add(inputLabelM);
+                inputPanelr.add(inputLabelF);
+				inputPanelr.add(inputTextAreaM);
+                inputPanelr.add(inputTextAreaF);
 				//inputPanel
 		
 		
@@ -93,9 +89,13 @@ public class Interface extends JFrame implements ActionListener{
 			
 			add("North", getDataWayPane);
 			
-			rlt = new JLabel("<html>[Format:]id,looks,character,wealth,exceptLooks," +
-					"expectCharacter,expectWealth<br> </html>");
-			add("South",rlt);
+			
+			DefaultListModel listModel = new DefaultListModel();
+			listModel.addElement("[Format:]MaleId,attributions-----FemaleId,attributions");
+			rlt = new JList(listModel);
+			JScrollPane scroll = new JScrollPane(rlt);
+            scroll.setAutoscrolls(true);
+			add("South",scroll);
 			
 			cl = new CardLayout();
 			cards = new JPanel(cl);	
@@ -117,52 +117,47 @@ public class Interface extends JFrame implements ActionListener{
 				cl.last(cards);				
 			}
 			else if(e.getActionCommand()=="Get the result using random data"){
-				String attribution = inputTextArear.getText();
-				if(attribution!=null && !attribution.trim().equals("") && verifyInput(attribution)){
-					MakePair.usingRandomData(MaleNum, FemaleNum);
-					Person matcher = MakePair.getMatcher();
-					if(matcher!=null){
-						rlt.setText("<html>[Format:]id,looks,character,wealth,exceptLooks," +
-							"expectCharacter,expectWealth<br>"+"The player's matcher is "+
-							matcher+"</html>");
-					}
-					else{
-						rlt.setText("<html>[Format:]id,looks,character,wealth,exceptLooks," +
-								"expectCharacter,expectWealth<br>"+"The player is so pool," +
-								"he has no macther</html>");
-					}
-					MakePair.clearData();
-					return;
-				}
-				rlt.setText("the input is invalid");
+//				String attribution = inputTextArear.getText();
+//				if(attribution!=null && !attribution.trim().equals("") && verifyInput(attribution)){
+//					MakePair.usingRandomData(MaleNum, FemaleNum);
+//					Person matcher = MakePair.getMatcher();
+//					if(matcher!=null){
+//						rlt.setText("<html>[Format:]id,looks,character,wealth,exceptLooks," +
+//							"expectCharacter,expectWealth<br>"+"The player's matcher is "+
+//							matcher+"</html>");
+//					}
+//					else{
+//						rlt.setText("<html>[Format:]id,looks,character,wealth,exceptLooks," +
+//								"expectCharacter,expectWealth<br>"+"The player is so pool," +
+//								"he has no macther</html>");
+//					}
+//					MakePair.clearData();
+//					return;
+//				}
+//				rlt.setText("the input is invalid");
 				
 			}
 			else if(e.getActionCommand()=="Get the result using data from file"){
-				String attribution = inputTextAreaf.getText();
-				int lineNumber;
-				if(attribution!=null && !attribution.trim().equals("") && attribution.matches("[0-9]*")){
-					lineNumber = Integer.parseInt(attribution.trim());
-					if(lineNumber<=100 && lineNumber>=1){
-						MakePair.usingFileData(MaleNum, FemaleNum);
-						Person matcher = MakePair.getMatcher();
-						if(matcher!=null){
-							rlt.setText("<html>[Format:]id,looks,character,wealth,exceptLooks," +
-									"expectCharacter,expectWealth<br>"+"The player's matcher is "+
-									matcher+"</html>");
-						}
-						else{
-							rlt.setText("<html>[Format:]id,looks,character,wealth,exceptLooks," +
-								"expectCharacter,expectWealth<br>"+"The player is so pool" +
-								"he has no macther</html>");
-						}
-						MakePair.clearData();
-						return;
-					}
+				MakePair.usingFileData(MaleNum,FemaleNum);
+				result = MakePair.showAllResult();
+				if(result!=null){
+				    DefaultListModel listModel = new DefaultListModel();
+		            listModel.addElement("[Format:]MaleId,attributions-----FemaleId,attributions");
+				    for(Person[] p :result){
+				        listModel.addElement(p[0]+"-----"+p[1]);
+				    }
+				    rlt.setModel(listModel);
 				}
-				rlt.setText("the input is invalid");
-				
-				
+				else{
+				    DefaultListModel listModel = new DefaultListModel();
+                    listModel.addElement("<html>[Format:]MaleId,attributions-----FemaleId,attributions<br>" +
+							"there is no pair generated</html>");
+                    rlt.setModel(listModel);
+				}
+				MakePair.clearData();
+				return;
 			}
+				
 			
 		}
 		
@@ -177,9 +172,9 @@ public class Interface extends JFrame implements ActionListener{
 			boolean isValid = false;
 			if(input.matches(regex)){
 				value = input.split(",");
-				for(int i=1;i<4;i++){//the attribution should be in [1-98]
+				for(int i=1;i<4;i++){//the attribution should be in [1-97]
 					int vi = Integer.parseInt(value[i]);
-					if(vi<=98&&vi>=1){
+					if(vi<=97&&vi>=1){
 						isValid = true;
 					}
 					else{

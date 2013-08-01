@@ -59,7 +59,7 @@ public class MakePair {
 		while(male.size()>0 && female.size()>0){
 			onePair = getOnePair();
 			if(onePair!=null){
-    			System.out.println(onePair[0]+"----"+onePair[1]);
+//    			System.out.println(onePair[0]+"-----"+onePair[1]);
     			result.add(onePair);
     			male.remove(onePair[0]);
     			female.remove(onePair[1]);
@@ -234,7 +234,7 @@ public class MakePair {
 				highScoreFemale = voter.getTarget();
 	            score = calculateScore(voter, highScoreFemale);
 	            if(score>=highScoreFemale.getExpectScore()*1.5){
-	                if(highScoreFemale.getTarget()==null || voter.getId()>highScoreFemale.getTarget().getId()){
+	                if(highScoreFemale.getTarget()==null || male.indexOf(voter)>male.indexOf(highScoreFemale.getTarget())){
     	                highScoreFemale.setTarget(voter);
     	                highScoreFemale.setTargetScore(score);
 	                }
@@ -256,9 +256,7 @@ public class MakePair {
 	            }
 			}
 			
-
 			voter.getTarget().addVote();
-			
 		}
 		
 		
@@ -271,7 +269,8 @@ public class MakePair {
     		    }
     		}
     		
-    		if(female.get(index).getVoteBox()==0){//the next popular one has no vote.
+    		if(female.get(index).getVoteBox()==0){
+    		    //the next popular one has no vote.
     		    return null;
     		}
     		else if(female.get(index).getTarget()!=null){
@@ -411,13 +410,11 @@ public class MakePair {
 		male.clear();
 	}
 
-    public static void setMaleNum(int maleNum)
-    {
+    public static void setMaleNum(int maleNum){
         MakePair.maleNum = maleNum;
     }
 
-    public static void setFemaleNum(int femaleNum)
-    {
+    public static void setFemaleNum(int femaleNum){
         MakePair.femaleNum = femaleNum;
     }
 
@@ -429,13 +426,11 @@ public class MakePair {
 		return female;
 	}
 
-    public static void setMale(ArrayList<Male> male)
-    {
+    public static void setMale(ArrayList<Male> male){
         MakePair.male = male;
     }
 
-    public static void setFemale(ArrayList<Female> female)
-    {
+    public static void setFemale(ArrayList<Female> female){
         MakePair.female = female;
     }
 	

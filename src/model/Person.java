@@ -68,13 +68,11 @@ public class Person {
 		return expectCharacter;
 	}
 
-	public int getHealth()
-    {
+	public int getHealth(){
         return health;
     }
 
-    public int getExpectHealth()
-    {
+    public int getExpectHealth(){
         return expectHealth;
     }
 

@@ -10,8 +10,7 @@ public class Female extends Person
     
 
     public Female(int id, int wealth, int looks, int character, int health, int expectWealth, int expectLooks,
-            int expectCharacter, int expectHealth,int expectScore)
-    {
+            int expectCharacter, int expectHealth,int expectScore){
         super(id, wealth, looks, character, health, expectWealth, expectLooks, expectCharacter, expectHealth);
         this.target = null;
         this.targetScore = 0;
@@ -27,8 +26,7 @@ public class Female extends Person
     	this.voteBox++;
     }
 
-    public void setVoteBox(int voteBox)
-    {
+    public void setVoteBox(int voteBox){
         this.voteBox = voteBox;
     }
 
@@ -36,13 +34,11 @@ public class Female extends Person
 		return voteBox;
 	}
 
-	public int getExpectScore()
-    {
+	public int getExpectScore(){
         return expectScore;
     }
 
-    public void setExpectScore(int expectScore)
-    {
+    public void setExpectScore(int expectScore){
         this.expectScore = expectScore;
     }
 

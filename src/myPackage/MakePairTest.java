@@ -8,7 +8,7 @@ import org.junit.After;
 import org.junit.Test;
 
 /**
- * Unit test of MakePair using data from specific file
+ * Unit test of MakePair using different data
  * @author qyh
  *
  */
