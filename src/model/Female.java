@@ -18,6 +18,16 @@ public class Female extends Person
         resetVoteBox();
     }
     
+    
+    
+    @Override
+    public String toString()
+    {
+        return super.toString()+","+expectScore;
+    }
+
+
+
     public void resetVoteBox(){
     	this.voteBox=0;
     }

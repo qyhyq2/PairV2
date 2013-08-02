@@ -1,8 +1,7 @@
-package myPackage;
+package ui;
 
 import java.awt.Button;
 import java.awt.CardLayout;
-import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
@@ -17,10 +16,14 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 
+import program.MakePair;
+
+import model.Female;
 import model.Person;
 
 public class Interface extends JFrame implements ActionListener{
-        private static final int MaleNum=150,FemaleNum=100;
+        private static int MaleNum;
+        private static int FemaleNum;
         private ArrayList<Person[]> result = new ArrayList<Person[]>();
 		private JPanel getDataWayPane,randomPanel,filePanel,inputPanelr,cards;
 		private Button randomButton,fileButton,randomGetRltButton,fileGetRltButton;
@@ -32,8 +35,8 @@ public class Interface extends JFrame implements ActionListener{
 		public Interface()
 		{
 			setSize(460,333);
-			setLocation(400, 300);
-			setTitle("Automated Matching");
+			setLocation(500, 400);
+			setTitle("Automated Matching V2");
 			
 			//getDataWayPanel: choose the way to get data
 			randomButton = new Button("Using random data");
@@ -53,7 +56,9 @@ public class Interface extends JFrame implements ActionListener{
 			fileGetRltButton.addActionListener(this);
 			
 			filePanel = new JPanel();
-			filePanel.setLayout(new FlowLayout());
+			FlowLayout fl = new FlowLayout();
+			fl.setVgap(30);
+			filePanel.setLayout(fl);
 			filePanel.add(new JPanel().add(fileGetRltButton));
 			//filePanel
 			
@@ -91,7 +96,7 @@ public class Interface extends JFrame implements ActionListener{
 			
 			
 			DefaultListModel listModel = new DefaultListModel();
-			listModel.addElement("[Format:]MaleId,attributions-----FemaleId,attributions");
+			listModel.addElement("[Format:]MaleId,attributions-----FemaleId,attributions,lowExpection");
 			rlt = new JList(listModel);
 			JScrollPane scroll = new JScrollPane(rlt);
             scroll.setAutoscrolls(true);
@@ -117,82 +122,52 @@ public class Interface extends JFrame implements ActionListener{
 				cl.last(cards);				
 			}
 			else if(e.getActionCommand()=="Get the result using random data"){
-//				String attribution = inputTextArear.getText();
-//				if(attribution!=null && !attribution.trim().equals("") && verifyInput(attribution)){
-//					MakePair.usingRandomData(MaleNum, FemaleNum);
-//					Person matcher = MakePair.getMatcher();
-//					if(matcher!=null){
-//						rlt.setText("<html>[Format:]id,looks,character,wealth,exceptLooks," +
-//							"expectCharacter,expectWealth<br>"+"The player's matcher is "+
-//							matcher+"</html>");
-//					}
-//					else{
-//						rlt.setText("<html>[Format:]id,looks,character,wealth,exceptLooks," +
-//								"expectCharacter,expectWealth<br>"+"The player is so pool," +
-//								"he has no macther</html>");
-//					}
-//					MakePair.clearData();
-//					return;
-//				}
-//				rlt.setText("the input is invalid");
+			    if(inputTextAreaM.getText().trim().matches("\\d+") && inputTextAreaF.getText().trim().matches("\\d+")){
+			        MaleNum = Integer.parseInt(inputTextAreaM.getText().trim());
+			        FemaleNum = Integer.parseInt(inputTextAreaF.getText().trim());
+			        MakePair.usingRandomData(MaleNum,FemaleNum);
+			        result = MakePair.getAllResult();
+	                outputResult();
+	                MakePair.clearData();
+			    }
+			    else{
+			        DefaultListModel listModel = new DefaultListModel();
+	                listModel.addElement("Invalid input");
+	                rlt.setModel(listModel);
+			    }
 				
 			}
 			else if(e.getActionCommand()=="Get the result using data from file"){
+			    MaleNum = 150;
+			    FemaleNum = 100;
 				MakePair.usingFileData(MaleNum,FemaleNum);
-				result = MakePair.showAllResult();
-				if(result!=null){
-				    DefaultListModel listModel = new DefaultListModel();
-		            listModel.addElement("[Format:]MaleId,attributions-----FemaleId,attributions");
-				    for(Person[] p :result){
-				        listModel.addElement(p[0]+"-----"+p[1]);
-				    }
-				    rlt.setModel(listModel);
-				}
-				else{
-				    DefaultListModel listModel = new DefaultListModel();
-                    listModel.addElement("<html>[Format:]MaleId,attributions-----FemaleId,attributions<br>" +
-							"there is no pair generated</html>");
-                    rlt.setModel(listModel);
-				}
+				result = MakePair.getAllResult();
+				outputResult();
 				MakePair.clearData();
-				return;
 			}
 				
 			
 		}
 		
 		/**
-		 * Verify the user's input is valid or not with specific rule
-		 * @param input
-		 * @return
+		 * Output the result
 		 */
-		private boolean verifyInput(String input){
-			String regex = "[0-1],\\d{1,2},\\d{1,2},\\d{1,2},\\d{1,2},\\d{1,2},\\d{1,2}";
-			String value[] = new String[7];
-			boolean isValid = false;
-			if(input.matches(regex)){
-				value = input.split(",");
-				for(int i=1;i<4;i++){//the attribution should be in [1-97]
-					int vi = Integer.parseInt(value[i]);
-					if(vi<=97&&vi>=1){
-						isValid = true;
-					}
-					else{
-						isValid = false;
-						return isValid;
-					}
-				}
-				if(Integer.parseInt(value[4])+Integer.parseInt(value[5])
-						+Integer.parseInt(value[6])==100){//the summary exception should be 100
-					isValid = true;
-				}
-				else{
-					isValid = false;
-					return isValid;
-				}
-			}
-			
-			return isValid;
+		private void outputResult(){
+		    if(result!=null || result.size()==0){
+                DefaultListModel listModel = new DefaultListModel();
+                listModel.addElement("[Format:]MaleId,attributions-----FemaleId,attributions,lowExpection");
+                for(Person[] p :result){
+                    listModel.addElement(p[0]+"-----"+(Female)p[1]);
+                }
+                listModel.addElement("Total: "+result.size()+"Pairs");
+                rlt.setModel(listModel);
+            }
+            else{
+                DefaultListModel listModel = new DefaultListModel();
+                listModel.addElement("[Format:]MaleId,attributions-----FemaleId,attributions,lowExpection");
+                listModel.addElement("There is no pair generated");
+                rlt.setModel(listModel);
+            }
 		}
 	
 }

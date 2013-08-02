@@ -1,4 +1,4 @@
-package myPackage;
+package program;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -50,16 +50,16 @@ public class MakePair {
 	}
 	
 	/**
-	 * Show all the result of the matching
-	 * 
+	 * Get all the result of the matching
+	 * @return ArrayList<Person[]> 
+	 *         all the pair
 	 */
-	public static ArrayList<Person[]> showAllResult(){
+	public static ArrayList<Person[]> getAllResult(){
 		Person[] onePair;
 		ArrayList<Person[]> result = new ArrayList<Person[]>();
 		while(male.size()>0 && female.size()>0){
 			onePair = getOnePair();
 			if(onePair!=null){
-//    			System.out.println(onePair[0]+"-----"+onePair[1]);
     			result.add(onePair);
     			male.remove(onePair[0]);
     			female.remove(onePair[1]);
@@ -73,7 +73,7 @@ public class MakePair {
 	
 	
 	/**
-	 * Read male from file which is in the path,and set the data to ArrayList<Male> male
+	 * Read male from file of the path,and set the data to ArrayList<Male> male
 	 * @param path
 	 * @param p
 	 */
@@ -86,7 +86,12 @@ public class MakePair {
 			String line ;
 			for(int i=0;i<maleNum;i++){
 				line = br.readLine();
-				male.add(createMale(line));
+				if(line!=null){
+				    male.add(createMale(line));
+				}
+				else{
+				    return;
+				}
 			}
 			
 		} catch (FileNotFoundException e) {
@@ -124,7 +129,12 @@ public class MakePair {
             String line ;
             for(int i=0;i<femaleNum;i++){
                 line = br.readLine();
-                female.add(createFemale(line));
+                if(line!=null){
+                    female.add(createFemale(line));
+                }
+                else{
+                    return;
+                }
             }
             
         } catch (FileNotFoundException e) {
@@ -218,16 +228,19 @@ public class MakePair {
 	 * Get one matching pair according to the specific rule
 	 * @return Person[]
 	 *  index 0 is male,index 1 is female.
-	 *  if return null that means no pair is available
+	 *  if return null, that means no pair is generated
 	 */
 	public static Person[] getOnePair(){
-		//males vote one who has the highest score in exists females
-		//meanwhile female can record the male who is the matcher among voters
 		int score;
 		Female highScoreFemale;
 		ArrayList<Female> NoSelectFemale = new ArrayList<Female>();
 		initializeVote();
+		
+		//males vote one who has the highest score among existing females
+        //meanwhile female can record the male who is the better matcher among voters
 		for(Male voter:male){
+		    
+		    //check if the male's target is still remaining.If she's remaining,there's no need to find again  
 			if(voter.getTarget()== null || (!female.contains(voter.getTarget()))){
 				setHighestScoreFemale(voter,female);
 				
@@ -259,29 +272,29 @@ public class MakePair {
 			voter.getTarget().addVote();
 		}
 		
-		
-		while(female.size()>0){
-		    //find the most/next popular female 
-    		int index = 0;
-    		for(int i=1;i<female.size();i++){
+		//find the female and get the pair
+		while(female.size()>0){//there're still some females
+		    int index = 0;
+    		for(int i=1;i<female.size();i++){//find the most/next popular female 
     		    if(compareVote(i,index,female)>0){
     		        index = i;
     		    }
     		}
     		
-    		if(female.get(index).getVoteBox()==0){
-    		    //the next popular one has no vote.
+    		if(female.get(index).getVoteBox()==0){//the next popular one has no vote.
     		    return null;
     		}
-    		else if(female.get(index).getTarget()!=null){
+    		else if(female.get(index).getTarget()!=null){//the female has a target,return the pair
     		    female.addAll(NoSelectFemale);
     		    return new Person[]{female.get(index).getTarget(),female.get(index)};
     		}
-    		else{
+    		else{//the female hasn't a target, she will give up
     		    NoSelectFemale.add(female.get(index));
                 female.remove(index);
     		}
 		}
+		
+		//no female left,return null
 		female.addAll(NoSelectFemale);
 		return null;
 
@@ -372,9 +385,9 @@ public class MakePair {
 		ArrayList<Male> m = new ArrayList<Male>();
 		Random ran = new Random();
 		for(int i=0;i<Num;i++){
-		    expectLooks = ran.nextInt(100)+1;
-		    expectChar = ran.nextInt(100-expectLooks)+1;
-		    expectWealth = ran.nextInt(100-expectLooks-expectChar)+1;
+		    expectLooks = ran.nextInt(97)+1;
+		    expectChar = ran.nextInt(98-expectLooks)+1;
+		    expectWealth = ran.nextInt(99-expectLooks-expectChar)+1;
 		    expectHealth = 100-expectLooks-expectChar-expectWealth;
 			m.add(new Male(i,ran.nextInt(MAX_ATTRIBUTION_VALUE)+1,ran.nextInt(MAX_ATTRIBUTION_VALUE)+1,ran.nextInt(MAX_ATTRIBUTION_VALUE)+1,
 					ran.nextInt(MAX_ATTRIBUTION_VALUE)+1,expectLooks,expectChar,expectWealth,expectHealth));
@@ -392,9 +405,9 @@ public class MakePair {
         ArrayList<Female> fm = new ArrayList<Female>();
         Random ran = new Random();
         for(int i=0;i<Num;i++){
-            expectLooks = ran.nextInt(100)+1;
-            expectChar = ran.nextInt(100-expectLooks)+1;
-            expectWealth = ran.nextInt(100-expectLooks-expectChar)+1;
+            expectLooks = ran.nextInt(97)+1;//[1,97]
+            expectChar = ran.nextInt(98-expectLooks)+1;//[1,97]
+            expectWealth = ran.nextInt(99-expectLooks-expectChar)+1;
             expectHealth = 100-expectLooks-expectChar-expectWealth;
             fm.add(new Female(i,ran.nextInt(MAX_ATTRIBUTION_VALUE)+1,ran.nextInt(MAX_ATTRIBUTION_VALUE)+1,ran.nextInt(MAX_ATTRIBUTION_VALUE)+1,
                     ran.nextInt(MAX_ATTRIBUTION_VALUE)+1,expectLooks,expectChar,expectWealth,expectHealth,ran.nextInt(MAX_EXPECTAION_VALUE)+1));
